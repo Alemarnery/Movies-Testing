@@ -1,11 +1,11 @@
-const createAutoComplete = ({ 
-     root,
-     renderOption,
-     onOptionSelect,
-     inputValue,
-     fetchData
- }) => {
-     root.innerHTML = `
+const createAutoComplete = ({
+  root,
+  renderOption,
+  onOptionSelect,
+  inputValue,
+  fetchData,
+}) => {
+  root.innerHTML = `
           <label><b>Search for a item </b></label>
                <input class="input">
                     <div class="dropdown">
@@ -15,41 +15,39 @@ const createAutoComplete = ({
                          </div>
                     </div>`;
 
-     const input = root.querySelector('input');
-     const dropdown = root.querySelector('.dropdown');
-     const resultsWrapper = root.querySelector('.results');
+  const input = root.querySelector("input");
+  const dropdown = root.querySelector(".dropdown");
+  const resultsWrapper = root.querySelector(".results");
 
-     const onInput = async event => {
-          const items = await fetchData(event.target.value);
+  const onInput = async (event) => {
+    const items = await fetchData(event.target.value);
 
-          if(!items.length){
-               dropdown.classList.remove('is-active');
-               return;
-          }
+    if (!items.length) {
+      dropdown.classList.remove("is-active");
+      return;
+    }
 
-          resultsWrapper.innerHTML = '';
-          dropdown.classList.add('is-active');
+    resultsWrapper.innerHTML = "";
+    dropdown.classList.add("is-active");
 
-          for (let item of items) {
-               const option = document.createElement('a');               
+    for (let item of items) {
+      const option = document.createElement("a");
+      option.classList.add("dropdown-item");
+      option.innerHTML = renderOption(item);
+      option.addEventListener("click", () => {
+        dropdown.classList.remove("is-active");
+        input.value = inputValue(item);
+        onOptionSelect(item);
+      });
 
-               option.classList.add('dropdown-item');
-               option.innerHTML = renderOption(item);
+      resultsWrapper.append(option);
+    }
+  };
 
-               option.addEventListener('click', () => {
-                    dropdown.classList.remove('is-active');
-                    input.value = inputValue(item);
-                    onOptionSelect(item);
-               });
-
-               resultsWrapper.append(option);
-          }        
-     };
-
-     input.addEventListener('input', debounce(onInput, 500) );
-     document.addEventListener('click', event => {
-          if(!root.contains(event.target)){
-               dropdown.classList.remove('is-active');
-          }     
-     });
+  input.addEventListener("input", debounce(onInput, 500));
+  document.addEventListener("click", (event) => {
+    if (!root.contains(event.target)) {
+      dropdown.classList.remove("is-active");
+    }
+  });
 };
